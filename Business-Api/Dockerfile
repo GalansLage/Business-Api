@@ -1,32 +1,30 @@
 # Consulte https://aka.ms/customizecontainer para aprender a personalizar su contenedor de depuración y cómo Visual Studio usa este Dockerfile para compilar sus imágenes para una depuración más rápida.
 
-# Esta fase se usa cuando se ejecuta desde VS en modo rápido (valor predeterminado para la configuración de depuración)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-
-
-# Esta fase se usa para compilar el proyecto de servicio
+# --- Etapa 1: Build ---
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Business-Api/Business-Api.csproj", "Business-Api/"]
-COPY ["Application/Application.csproj", "Application/"]
-COPY ["Domain/Domain.csproj", "Domain/"]
-COPY ["Infraestructure/Infraestructure.csproj", "Infraestructure/"]
-RUN dotnet restore "./Business-Api/Business-Api.csproj"
+
+# Copia todos los archivos .csproj y restaura las dependencias.
+# Las rutas ahora incluyen la carpeta 'src/'.
+COPY ["src/Business-Api/Business-Api.csproj", "src/Business-Api/"]
+COPY ["src/Application/Application.csproj", "src/Application/"]
+COPY ["src/Domain/Domain.csproj", "src/Domain/"]
+COPY ["src/Infrastructure/Infrastructure.csproj", "src/Infrastructure/"]
+RUN dotnet restore "src/Business-Api/Business-Api.csproj"
+
+# Copia todo el código fuente.
 COPY . .
-WORKDIR "/src/Business-Api"
-RUN dotnet build "./Business-Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/src/Business-Api"
+RUN dotnet build "Business-Api.csproj" -c Release -o /app/build
 
-# Esta fase se usa para publicar el proyecto de servicio que se copiará en la fase final.
+# --- Etapa 2: Publish ---
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Business-Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Business-Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Esta fase se usa en producción o cuando se ejecuta desde VS en modo normal (valor predeterminado cuando no se usa la configuración de depuración)
-FROM base AS final
+# --- Etapa 3: Final ---
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+# El puerto interno estándar para HTTP es 80.
+EXPOSE 80
 ENTRYPOINT ["dotnet", "Business-Api.dll"]

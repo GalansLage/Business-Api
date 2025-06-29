@@ -20,6 +20,26 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuración de CORS para Render y desarrollo local
+var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? new[] {
+        "https://coffeeshopapi-1.onrender.com",
+    "http://localhost:5173"};
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("RenderCorsPolicy", policy =>
+    {
+        policy.WithOrigins(corsAllowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+
+        // Específico para PostgreSQL y Swagger
+        policy.WithExposedHeaders("Content-Disposition");
+    });
+});
+
 // Carga la configuración según el entorno
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -57,6 +77,29 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+// --- Aplicar migraciones al inicio ---
+// Esto es crucial para que Render pueda crear el esquema de la base de datos.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<BusinessContext>();
+        // Si la base de datos no es la de en memoria (para tests), aplica la migración.
+        if (dbContext.Database.IsNpgsql())
+        {
+            await dbContext.Database.MigrateAsync();
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error durante la migración de la base de datos.");
+        // Considera no iniciar la app si la migración falla.
+        // throw; 
+    }
+}
+
 
 // ---- INICIO DEL CÓDIGO DE DIAGNÓSTICO ----
 app.Use(async (context, next) =>
@@ -69,7 +112,12 @@ app.Use(async (context, next) =>
 });
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    // Esto asegura que Swagger funcione correctamente detrás de un proxy.
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Business API V1");
+    c.RoutePrefix = string.Empty; // Para que Swagger UI esté en la raíz (opcional)
+});
 
 app.UseRouting();
 
