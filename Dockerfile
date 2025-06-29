@@ -5,10 +5,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Las rutas ahora son relativas a la raíz del repositorio, donde está este Dockerfile.
-COPY ["src/Business-Api/Business-Api.csproj", "Business-Api/"]
-COPY ["src/Application/Application.csproj", "Application/"]
-COPY ["src/Domain/Domain.csproj", "Domain/"]
-COPY ["src/Infrastructure/Infrastructure.csproj", "Infrastructure/"]
+COPY ["Business-Api/Business-Api.csproj", "Business-Api/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 
 # Restauramos las dependencias.
 RUN dotnet restore "Business-Api/Business-Api.csproj"
