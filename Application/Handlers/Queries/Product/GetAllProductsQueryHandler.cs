@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Handlers.Queries.Product
 {
-    public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, PagedResponse<ProductDto>>
+    public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, PagedResponse<ProductWithStockDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -18,7 +18,7 @@ namespace Application.Handlers.Queries.Product
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PagedResponse<ProductDto>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResponse<ProductWithStockDto>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
         {
             var totalRecords = _unitOfWork.ProductRepository.GetAll().Count();
             var products = await _unitOfWork.ProductRepository.GetAll().Include(p=>p.Provider)
@@ -27,14 +27,15 @@ namespace Application.Handlers.Queries.Product
                 .ToListAsync();
             if (products == null) throw new NotFoundException("No hay productos.");
 
-            var productResponse = new List<ProductDto>();
+            var productResponse = new List<ProductWithStockDto>();
 
             foreach (var product in products)
             {
-                productResponse.Add(ProductMapper.ToDto(product));
+                var stock = _unitOfWork.ProductItemRepository.GetAll().Where(p => p.ProductId == product.Id).Count();
+                productResponse.Add(ProductMapper.ToDto(product,stock));
             }
 
-            var pagedResponse = new PagedResponse<ProductDto>(
+            var pagedResponse = new PagedResponse<ProductWithStockDto>(
                 productResponse,
                 request.PageNumber,
                 request.PageSize,

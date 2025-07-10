@@ -29,7 +29,6 @@ namespace Domain.Entities.ProductTransactionEntity
         public decimal ConfirmTransaction()
         {
             IsDeletedChange();
-            _domainEvents.Add(new TransactionConfirmed(true, DateTime.UtcNow));
             return TotalIncome();
         }
 

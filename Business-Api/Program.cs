@@ -17,6 +17,8 @@ using Infrastructure.Persistence.UnitOfWork;
 using Infrastructure.Persistence.Repositories.ProductRepository;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Domain.Repositories.DailySalesReportRepository;
+using Infrastructure.Persistence.Repositories.DailySalesReportRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +26,9 @@ var builder = WebApplication.CreateBuilder(args);
 var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] {
         "https://business-api-1xlx.onrender.com",
-    "http://localhost:5173"};
+    "http://localhost:5173",
+     "https://localhost:5173"
+    };
 
 builder.Services.AddCors(options =>
 {
@@ -35,7 +39,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials();
 
-        // Específico para PostgreSQL y Swagger
+        // Específico para PostgreSQL y Swagger`
         policy.WithExposedHeaders("Content-Disposition");
     });
 });
@@ -70,6 +74,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductItemRepository, ProductItemRepository>();
 builder.Services.AddScoped<IProductTransactionRepository, ProductTransactionRepository>();
 builder.Services.AddScoped<IProviderRepository, ProviderRepository>();
+builder.Services.AddScoped<IDailySalesReportRepository, DailySalesReportRepository>();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 
 

@@ -1,16 +1,10 @@
 ﻿
 
+using Domain.Entities.ProductTransactionEntity;
+
 namespace Domain.DomainEvents.ProductTransactionEvents
 {
-    class TransactionConfirmed:IDomainEvent
-    {
-        public bool IsDeleted { get; }
-        public DateTime DeletedTimeUtc { get; }
+    public record TransactionConfirmed(ProductTransaction ConfirmedTransaction):IDomainEvent;
+    
 
-        public TransactionConfirmed(bool isDeleted, DateTime deletedTimeUtc)
-        {
-            IsDeleted = isDeleted;
-            DeletedTimeUtc = deletedTimeUtc;
-        }
-    }
 }

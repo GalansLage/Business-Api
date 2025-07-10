@@ -24,8 +24,8 @@ namespace Business_Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts([FromQuery] GetAllProductsQuery query)
-            =>Ok(ApiResponse<PagedResponse<ProductDto>>.Success(await _mediator.Send(query)));
+        public async Task<ActionResult<IEnumerable<ProductWithStockDto>>> GetAllProducts([FromQuery] GetAllProductsQuery query)
+            =>Ok(ApiResponse<PagedResponse<ProductWithStockDto>>.Success(await _mediator.Send(query)));
 
 
         [HttpGet("{Id}")]

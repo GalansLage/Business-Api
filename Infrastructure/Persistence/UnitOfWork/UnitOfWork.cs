@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Transactions;
 using Application.UnitOfWork;
+using Domain.Repositories.DailySalesReportRepository;
 using Domain.Repositories.ProductItemRepository;
 using Domain.Repositories.ProductRepository;
 using Domain.Repositories.ProductTransactionRepository;
@@ -22,9 +23,13 @@ namespace Infrastructure.Persistence.UnitOfWork
         public IProductItemRepository ProductItemRepository { get; }
         public IProductTransactionRepository ProductTransactionRepository { get; }
         public IProviderRepository ProviderRepository { get; }
+        public IDailySalesReportRepository DailySalesReportRepository { get; }
 
-
-        public UnitOfWork(ILogger<UnitOfWork> logger, IProductItemRepository productItemRepository,IProviderRepository providerRepository, BusinessContext context, IProductRepository productRepository, IProductTransactionRepository productTransactionRepository)
+        public UnitOfWork(ILogger<UnitOfWork> logger, IProductItemRepository productItemRepository,
+                          IProviderRepository providerRepository, BusinessContext context,
+                          IProductRepository productRepository,
+                          IDailySalesReportRepository dailySalesReportRepository,
+                          IProductTransactionRepository productTransactionRepository)
         {
             _context = context;
             ProductRepository = productRepository;
@@ -32,6 +37,7 @@ namespace Infrastructure.Persistence.UnitOfWork
             _logger = logger;
             ProviderRepository = providerRepository;
             ProductItemRepository = productItemRepository;
+            DailySalesReportRepository = dailySalesReportRepository;
         }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()

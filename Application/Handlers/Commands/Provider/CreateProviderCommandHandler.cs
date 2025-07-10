@@ -4,7 +4,6 @@ using Application.DTOs;
 using Application.Features.Providers.Commands.CreateProvider;
 using Application.Mappers;
 using Application.UnitOfWork;
-using Domain.Entities.ProviderEntity;
 using MediatR;
 
 namespace Application.Handlers.Commands.Provider

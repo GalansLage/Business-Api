@@ -1,4 +1,5 @@
-﻿using Domain.Entities.ProductEntity;
+﻿using Domain.Entities.DailySalesReportEntity;
+using Domain.Entities.ProductEntity;
 using Domain.Entities.ProductItemEntity;
 using Domain.Entities.ProductTransactionEntity;
 using Domain.Entities.ProviderEntity;
@@ -16,6 +17,7 @@ namespace Infrastructure.Persistence
         public DbSet<ProductTransaction> ProductTransactions { get; set; }
         public DbSet<Provider> Providers { get; set; }
         public DbSet<ProductItem> ProductItems { get; set; }
+        public DbSet<DailySalesReport> DailySalesReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +26,12 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<ProductTransaction>().ToTable("ProductTransaction");
             modelBuilder.Entity<Provider>().ToTable("Provider");
             modelBuilder.Entity<ProductItem>().ToTable("ProductItem");
+            modelBuilder.Entity<DailySalesReport>().ToTable("DailySalesReport");
+
+
+            modelBuilder.Entity<DailySalesReport>(daily =>
+                daily.HasQueryFilter(dsr => !dsr.IsDeleted)
+            );
 
             modelBuilder.Entity<ProductItem>(productItem =>
             {

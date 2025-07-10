@@ -9,12 +9,24 @@ namespace Application.Mappers
         public static ProviderDto ToDto(Provider provider)
         {
             return new ProviderDto(
+                Id: provider.Id,
+                providerName: provider.ProviderName.Name,
+                providerLastName: provider.ProviderLastName.Name,
+                ci: provider.CI.CIVO,
+                number: provider.Number.NumberVO,
+                products:GetProducts(provider.Products)
+                );
+        }
+        public static ProviderWithStockDto ToDto(Provider provider, List<ProductWithStockDto> stock)
+        {
+            Console.WriteLine($"{stock.Count}");
+            return new ProviderWithStockDto(
                 Id:provider.Id,
                 providerName: provider.ProviderName.Name,
                 providerLastName: provider.ProviderLastName.Name,
                 ci: provider.CI.CIVO,
                 number:provider.Number.NumberVO,
-                products:GetProducts(provider.Products)
+                products:stock
                 );
         }
 

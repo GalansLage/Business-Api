@@ -25,8 +25,8 @@ namespace Business_Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedResponse<ProviderDto>>> GetAllProviders([FromQuery] GetAllProvidersQuery getAllProvidersQuery)
-            => Ok(ApiResponse<PagedResponse<ProviderDto>>.Success(await _mediator.Send(getAllProvidersQuery)));
+        public async Task<ActionResult<PagedResponse<ProviderWithStockDto>>> GetAllProviders([FromQuery] GetAllProvidersQuery getAllProvidersQuery)
+            => Ok(ApiResponse<PagedResponse<ProviderWithStockDto>>.Success(await _mediator.Send(getAllProvidersQuery)));
 
         [HttpGet("{Id}")]
         public async Task<ActionResult<ProviderDto>> GetProviderById([FromRoute] GetProviderByIdQuery getProviderByIdQuery)

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Handlers.Queries.Provider
 {
-    public class GetAllProvidersQueryHandler : IRequestHandler<GetAllProvidersQuery, PagedResponse<ProviderDto>>
+    public class GetAllProvidersQueryHandler : IRequestHandler<GetAllProvidersQuery, PagedResponse<ProviderWithStockDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         public GetAllProvidersQueryHandler(IUnitOfWork unitOfWork)
@@ -17,9 +17,9 @@ namespace Application.Handlers.Queries.Provider
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PagedResponse<ProviderDto>> Handle(GetAllProvidersQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResponse<ProviderWithStockDto>> Handle(GetAllProvidersQuery request, CancellationToken cancellationToken)
         {
-            var totalRecordes = _unitOfWork.ProviderRepository.GetAll().Count();
+            var totalRecordes = await _unitOfWork.ProviderRepository.GetAll().CountAsync();
 
             var providers = await _unitOfWork.ProviderRepository.GetAll().Include(p => p.Products)
                 .OrderBy(p => p.Id).Skip((request.pageNumber - 1) * request.pageSize).Take(request.pageSize)
@@ -27,14 +27,31 @@ namespace Application.Handlers.Queries.Provider
 
             if (providers == null) throw new NotFoundException("No hay provedores");
 
-            var providerResponse = new List<ProviderDto>();
-
-            foreach(var provider in providers)
+            foreach (var item in providers)
             {
-                providerResponse.Add(ProviderMapper.ToDto(provider));
+                Console.WriteLine($"{item.Products.Count}");
             }
 
-            var pagedResponse = new PagedResponse<ProviderDto>(
+            var providerResponse = new List<ProviderWithStockDto>();
+
+          
+
+            foreach (var provider in providers)
+            {
+                var productWithStock = new List<ProductWithStockDto>();
+
+                if (provider.Products != null)
+                {
+                    foreach (var item in provider.Products)
+                    {
+                        var stock = _unitOfWork.ProductItemRepository.GetAll().Where(pi => pi.ProductId == item.Id).Count();
+                        productWithStock.Add(ProductMapper.ToDto(item, stock));
+                    }
+                }
+                providerResponse.Add(ProviderMapper.ToDto(provider, productWithStock));
+            }
+
+            var pagedResponse = new PagedResponse<ProviderWithStockDto>(
                     providerResponse,
                     request.pageNumber,
                     request.pageSize,

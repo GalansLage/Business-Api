@@ -21,7 +21,7 @@ namespace Application.Handlers.Queries.ProductItem
 
         public async Task<PagedResponse<ProductItemDto>> Handle(GetAllProductItemQuery request, CancellationToken cancellationToken)
         {
-            var totalRecords = _unitOfWork.ProductRepository.GetAll().Count();
+            var totalRecords = _unitOfWork.ProductItemRepository.GetAll().Count();
 
             var productsItems = await _unitOfWork.ProductItemRepository.GetAll().Include(pi=>pi.Product).ThenInclude(p=>p.Provider)
                 .OrderBy(pi=>pi.Id).Skip((request.PageNumber-1)*request.PageSize).Take(request.PageSize).ToListAsync();

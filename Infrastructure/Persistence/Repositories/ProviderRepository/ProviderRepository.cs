@@ -28,5 +28,10 @@ namespace Infrastructure.Persistence.Repositories.ProviderRepository
 
             return query;
         }
+
+        public async Task<Provider?> GetProviderWithProduct(int Id)
+            => await _context.Providers.Include(p => p.Products).FirstOrDefaultAsync(pr => pr.Id == Id);
+
+        
     }
 }
