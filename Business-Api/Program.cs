@@ -26,8 +26,8 @@ var builder = WebApplication.CreateBuilder(args);
 var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] {
         "https://business-api-1xlx.onrender.com",
-    "http://localhost:5173",
-     "https://localhost:5173"
+        "http://localhost:5173",
+         "https://localhost:5173"
     };
 
 builder.Services.AddCors(options =>
@@ -125,7 +125,7 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseRouting();
-
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
