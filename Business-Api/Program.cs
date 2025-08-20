@@ -27,7 +27,8 @@ var corsAllowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins")
     ?? new[] {
         "https://business-api-1xlx.onrender.com",
         "http://localhost:5173",
-         "https://localhost:5173"
+         "https://localhost:5173",
+         "http://business-gestion.local"
     };
 
 builder.Services.AddCors(options =>
